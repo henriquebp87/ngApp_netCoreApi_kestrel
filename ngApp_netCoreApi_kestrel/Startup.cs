@@ -1,3 +1,4 @@
+using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -5,21 +6,17 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using StackExchange.Redis;
 
 namespace ngApp_netCoreApi_kestrel
 {
     public class Startup
     {
-        public IConfigurationRoot Configuration { get; set; }
+        private readonly IConfiguration _configuration;
 
-        public Startup(IWebHostEnvironment env)
+        public Startup(IConfiguration configuration)
         {
-            // Set up configuration sources.
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appsettings.json")
-                .AddEnvironmentVariables();
-            Configuration = builder.Build();
+            _configuration = configuration;
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -27,7 +24,16 @@ namespace ngApp_netCoreApi_kestrel
         public void ConfigureServices(IServiceCollection services)
         {
             // Map the #SpaSettings section to the <see cref=SpaSettings /> class
-            services.Configure<SpaSettings>(Configuration.GetSection("SpaSettings"));
+            services.Configure<SpaSettings>(_configuration.GetSection("SpaSettings"));
+
+            var isDocker = Environment.GetEnvironmentVariable("DOCKER");
+
+            if (bool.TryParse(isDocker, out var result))
+            {
+                var redis = ConnectionMultiplexer.Connect("172.17.0.3:6379");
+                services.AddScoped(x => redis.GetDatabase());
+            }
+
             services.AddControllers();
         }
 

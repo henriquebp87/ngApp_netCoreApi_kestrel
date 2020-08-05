@@ -4,7 +4,7 @@ using System.IO;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ngApp_netCoreApi_kestrel
+namespace ngApp_netCoreApi_kestrel.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
