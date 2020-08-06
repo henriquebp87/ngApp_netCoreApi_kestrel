@@ -7,14 +7,13 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
 WORKDIR /src
-COPY ["ngApp_netCoreApi_kestrel/ngApp_netCoreApi_kestrel.csproj", "ngApp_netCoreApi_kestrel/"]
-RUN dotnet restore "ngApp_netCoreApi_kestrel/ngApp_netCoreApi_kestrel.csproj"
+COPY *.csproj .
+RUN dotnet restore
 COPY . .
-WORKDIR "/src/ngApp_netCoreApi_kestrel"
-RUN dotnet build "ngApp_netCoreApi_kestrel.csproj" -c Release -o /app/build
+RUN dotnet build -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "ngApp_netCoreApi_kestrel.csproj" -c Release -o /app/publish
+RUN dotnet publish -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
